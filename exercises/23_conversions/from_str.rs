@@ -42,7 +42,17 @@ impl FromStr for Person {
     type Err = ParsePersonError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        
+        let split = s.split(",");
+        if split.len() == 0 || split.len() < 2 {
+            return Err(ParsePersonError::BadLen)
+        } else if split[0] == "" {
+            return Err(ParsePersonError::NoName)
+        } else {
+            match split[1].parse::<u8>()  {
+            Err(e)  => return Err(ParsePersonError::ParseInt(e)),
+            _       => return Ok(Person{name: split[0].to_string(), age: split[1].parse::<u8>()})
+            }
+        }
     }
 }
 
