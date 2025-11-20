@@ -42,15 +42,18 @@ impl FromStr for Person {
     type Err = ParsePersonError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let split = s.split(",");
-        if split.len() == 0 || split.len() < 2 {
+        let mut split = s.split(",");
+        if split.size_hint().0 == 0 || split.size_hint().0 > 2 {
             return Err(ParsePersonError::BadLen)
-        } else if split[0] == "" {
-            return Err(ParsePersonError::NoName)
         } else {
-            match split[1].parse::<u8>()  {
+            let name = split.next().unwrap().to_string();
+            if name == "" {
+                return Err(ParsePersonError::NoName)
+            }
+            let age  = split.next().unwrap();
+            match age.parse::<u8>()  {
             Err(e)  => return Err(ParsePersonError::ParseInt(e)),
-            _       => return Ok(Person{name: split[0].to_string(), age: split[1].parse::<u8>()})
+            Ok(a)   => return Ok(Person{name, age: a})
             }
         }
     }
