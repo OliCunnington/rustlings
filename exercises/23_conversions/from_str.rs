@@ -42,26 +42,40 @@ impl FromStr for Person {
     type Err = ParsePersonError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut split = s.split(",");
-        if split.size_hint().0 == 0 || split.size_hint().0 > 2 {
+
+        let split : Vec<&str> = s.split(",").collect();
+        // println!("{}, {}", split.size_hint().0, split.size_hint().1.unwrap());
+        if split.len() != 2 {
             return Err(ParsePersonError::BadLen)
-        } else {
-            let name = split.next().unwrap().to_string();
-            if name == "" {
-                return Err(ParsePersonError::NoName)
-            }
-            let age  = split.next().unwrap();
-            match age.parse::<u8>()  {
-            Err(e)  => return Err(ParsePersonError::ParseInt(e)),
-            Ok(a)   => return Ok(Person{name, age: a})
-            }
+        } 
+
+        let name = split[0];
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName)
+        } 
+        
+        
+        let age  = split[1];
+        // if age == "" {
+        //     return Err(ParsePersonError::BadLen)
+        // }
+        match age.parse::<u8>()  {
+        Err(e)  => Err(ParsePersonError::ParseInt(e)),
+        Ok(a)   => Ok(Person{name: name.to_string(), age: a})
         }
+        
     }
 }
 
 fn main() {
     let p = "Mark,20".parse::<Person>();
     println!("{p:?}");
+    println!("{:?}", ",".parse::<Person>());
+    println!("{:?}", ",20".parse::<Person>());
+    println!("{:?}", "Jim,".parse::<Person>());
+    
+    println!("{:?}", "".parse::<Person>());
+    println!("{:?}", "Tim,165".parse::<Person>());
 }
 
 #[cfg(test)]
